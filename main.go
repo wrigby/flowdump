@@ -12,12 +12,6 @@ import (
 	"github.com/google/gopacket/pcap"
 )
 
-var (
-	iface    string // Interface to listen on
-	pcapFile string // PCAP file to read from
-	snaplen  int    // Snaplen when live-capturing
-)
-
 func main() {
 	iface := flag.StringP("interface", "i", defaultIface(), "Interface to listen on")
 	snaplen := flag.IntP("snaplen", "s", 1600, "Maximum number of bytes to read from each packet")
