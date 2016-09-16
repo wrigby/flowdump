@@ -1,14 +1,20 @@
 # flowdump
 
+flowdump is a tool for extracting payloads from packet captures.
+
 ## Why?
 
-flowdump is a tool for extracting payloads from packet captures. After fumbling around with WireShark and other tools for doing this, I wanted a simple and quick solution to get the actual UDP or TCP payloads out of a flow that was captured off the wire in a PCAP file.
+After looking for an easy way to extract just the TCP or UDP payload from a flow of packets captured in a .pcap file, I had to settle for opening up the capture in WireShark, using the 'Follow Stream' functionality, and then saving the output in a raw format. This works well, but is inconvenient and slow compared to having a quick CLI utility to do the same task.
+
+## How?
+
+flowdump is written in Go, and uses the fantastic [gopacket](https://github.com/google/gopacket) to parse packets, either from a live capture or from a pre-recorded pcap file.
 
 ## Installation
 
 `$ go get github.com/wrigby/flowdump`
 
-## Basic usage
+## Usage
 
 flowdump relies on you writing an appropriate BPF filter rule that isolates the flow (or flows) you want to dump data from. For instance, to see all outgoing HTTP requests from our machine, we could run:
 
