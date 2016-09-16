@@ -12,3 +12,9 @@ PCAP file.
 
 ... once there's code here.
 
+
+## License
+
+FlowDump is licensed under the MIT license. For more details, see the LICENSE file
+provided with this source code.
+
