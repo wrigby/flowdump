@@ -33,6 +33,13 @@ $ grep ^Host: requests.txt | awk '{print $2}' | sort | uniq -c
    3 reddit.com
 ```
 
+## Roadmap
+
+- [x] Read PCAP files
+- [x] Live packet captures
+- [ ] Intelligent TCP stream re-assembly (right now flowdump just doesn't care about silly things like sequence numbers)
+- [ ] Split out each flow automatically and write each to its own file
+- [ ] Summary tools to show a list of flows identified
 
 ## License
 
