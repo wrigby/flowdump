@@ -12,6 +12,13 @@ import (
 	"github.com/google/gopacket/pcap"
 )
 
+var (
+	iface    string
+	snaplen  int
+	pcapFile string
+	force    bool
+)
+
 func usage() {
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] [filter]\n", os.Args[0])
 	fmt.Println()
@@ -20,31 +27,36 @@ func usage() {
 }
 
 func main() {
+	os.Exit(flowDump())
+}
+
+func flowDump() int {
 	flag.Usage = usage
-	iface := flag.StringP("interface", "i", defaultIface(), "Interface to listen on")
-	snaplen := flag.IntP("snaplen", "s", 1600, "Maximum number of bytes to read from each packet")
-	pcapFile := flag.StringP("file", "r", "", "Read from a pcap file instead of listening")
+	flag.StringVarP(&iface, "interface", "i", defaultIface(), "Interface to listen on")
+	flag.IntVarP(&snaplen, "snaplen", "s", 1600, "Maximum number of bytes to read from each packet")
+	flag.StringVarP(&pcapFile, "file", "r", "", "Read from a pcap file instead of listening")
+	flag.BoolVarP(&force, "force", "f", false, "Run even if no filter is provided")
 	flag.Parse()
 
 	var handle *pcap.Handle
 	var err error
-	if *pcapFile != "" {
+	if pcapFile != "" {
 		// Read from file
-		handle, err = pcap.OpenOffline(*pcapFile)
+		handle, err = pcap.OpenOffline(pcapFile)
 
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Couldn't open %s: %s\n", *pcapFile, err)
-			os.Exit(1)
+			fmt.Fprintf(os.Stderr, "Couldn't open %s: %s\n", pcapFile, err)
+			return 1
 		}
 	} else {
 		// Live packet capture
-		handle, err = pcap.OpenLive(*iface, int32(*snaplen), true, pcap.BlockForever)
+		handle, err = pcap.OpenLive(iface, int32(snaplen), true, pcap.BlockForever)
 
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Couldn't listen on %s: %s\n", *iface, err)
-			os.Exit(1)
+			fmt.Fprintf(os.Stderr, "Couldn't listen on %s: %s\n", iface, err)
+			return 1
 		} else {
-			fmt.Fprintf(os.Stderr, "Listening on %s (snaplen %d bytes)\n", *iface, *snaplen)
+			fmt.Fprintf(os.Stderr, "Listening on %s (snaplen %d bytes)\n", iface, snaplen)
 		}
 	}
 	defer handle.Close()
@@ -57,6 +69,10 @@ func main() {
 		}
 	} else {
 		fmt.Fprintln(os.Stderr, "No packet filter provided - this probably isn't what you want!")
+		if !force {
+			fmt.Fprintln(os.Stderr, "Exiting; use --force if you really want to do this.")
+			return 1
+		}
 	}
 
 	// Now dump all of the packets
@@ -67,6 +83,8 @@ func main() {
 			os.Stdout.Write(tl.LayerPayload())
 		}
 	}
+
+	return 0
 }
 
 // Find the first non-loopback interface that's up
