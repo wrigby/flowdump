@@ -45,6 +45,7 @@ func main() {
 	signal.Notify(sigC,
 		syscall.SIGINT,
 		syscall.SIGTERM,
+		syscall.SIGPIPE,
 	)
 
 	errC = flowDump(ctx)
