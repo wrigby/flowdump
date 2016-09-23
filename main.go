@@ -143,14 +143,12 @@ func flowDump(ctx context.Context) chan error {
 
 // Find the first non-loopback interface that's up
 func defaultIface() string {
-	var iface string
 	ifaces, _ := net.Interfaces()
 	for _, candidate := range ifaces {
 		f := candidate.Flags
 		if (f&net.FlagUp != 0) && (f&net.FlagLoopback == 0) {
-			iface = candidate.Name
-			break
+			return candidate.Name
 		}
 	}
-	return iface
+	return "any"
 }
